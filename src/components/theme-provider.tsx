@@ -15,12 +15,14 @@ interface ThemeProviderState {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: (event?: React.MouseEvent) => void;
+  isAnimating: boolean;
 }
 
 const initialState: ThemeProviderState = {
   theme: "light",
   setTheme: () => null,
   toggleTheme: () => null,
+  isAnimating: false,
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
@@ -46,9 +48,10 @@ export function ThemeProvider({
   const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [overlayTheme, setOverlayTheme] = useState<Theme>(theme);
+  const [pendingTheme, setPendingTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !theme) return;
 
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
@@ -61,31 +64,47 @@ export function ThemeProvider({
   }, [theme, storageKey]);
 
   const setTheme = (newTheme: Theme) => {
+    // This function is for programmatic theme changes without animation
     setThemeState(newTheme);
+    setOverlayTheme(newTheme); // Keep overlayTheme in sync
+    if (isAnimating) { // If an animation was running, cancel it
+        setIsAnimating(false);
+        setPendingTheme(null);
+    }
   };
 
   const toggleTheme = useCallback((event?: React.MouseEvent) => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    // Always attempt custom animation if event is provided
+    if (isAnimating) return; // Prevent starting a new animation if one is in progress
+
+    const newThemeToSet = pendingTheme ? (pendingTheme === "light" ? "dark" : "light") : (theme === "light" ? "dark" : "light");
+
     if (event && typeof window !== 'undefined') {
       setClickPosition({ x: event.clientX, y: event.clientY });
-      setOverlayTheme(newTheme);
+      setPendingTheme(newThemeToSet);
+      setOverlayTheme(newThemeToSet); // Overlay gets the color of the theme it's transitioning TO
       setIsAnimating(true);
-      setThemeState(newTheme);
+      // Actual theme (on <html>) change is deferred to handleAnimationEnd
     } else {
-      setThemeState(newTheme); // Fallback for no event (e.g., programmatic change)
+      // Programmatic change or no event, no animation
+      setThemeState(newThemeToSet);
+      setOverlayTheme(newThemeToSet);
     }
-  }, [theme]);
+  }, [theme, isAnimating, pendingTheme]);
 
   const handleAnimationEnd = () => {
+    if (pendingTheme) {
+      setThemeState(pendingTheme); // Apply the theme to <html>
+      setPendingTheme(null);
+    }
     setIsAnimating(false);
-    setClickPosition(null);
+    setClickPosition(null); // Reset click position
   };
 
   const value = {
     theme,
     setTheme,
     toggleTheme,
+    isAnimating,
   };
 
   return (
@@ -112,4 +131,3 @@ export const useTheme = () => {
   }
   return context;
 };
-
