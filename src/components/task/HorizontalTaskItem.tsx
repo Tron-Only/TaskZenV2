@@ -48,7 +48,7 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
             {task.title}
           </h3>
           {task.description && (
-            <p className={cn("text-xs text-muted-foreground mt-0.5 truncate strikethrough-animated", isDone && "is-done")}>
+            <p className={cn("text-xs text-muted-foreground mt-1 truncate strikethrough-animated", isDone && "is-done")}>
               {task.description}
             </p>
           )}
