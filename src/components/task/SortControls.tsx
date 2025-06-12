@@ -21,13 +21,13 @@ export function SortControls({ sortConfig, onSortChange }: SortControlsProps) {
   };
 
   return (
-    <div className="flex items-center space-x-2">
-      <span className="text-sm text-muted-foreground">Sort by:</span>
+    <div className="flex items-center space-x-2 w-full sm:w-auto">
+      <span className="text-sm text-muted-foreground whitespace-nowrap">Sort by:</span>
       <Select
         value={sortConfig.key}
         onValueChange={(value) => handleSortKeyChange(value as SortConfig['key'])}
       >
-        <SelectTrigger className="w-[150px] h-9">
+        <SelectTrigger className="w-full sm:w-[150px] h-9">
           <SelectValue placeholder="Select field" />
         </SelectTrigger>
         <SelectContent>

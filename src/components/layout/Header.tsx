@@ -23,8 +23,8 @@ export function Header() {
     <header className="bg-card border-b shadow-sm">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center">
-          <ListChecks className="h-8 w-8 text-primary mr-3" />
-          <h1 className="text-3xl font-headline font-bold text-primary">TaskZen</h1>
+          <ListChecks className="h-7 w-7 sm:h-8 sm:w-8 text-primary mr-2 sm:mr-3" />
+          <h1 className="text-2xl sm:text-3xl font-headline font-bold text-primary">TaskZen</h1>
         </div>
         <Button 
           variant="outline" 
