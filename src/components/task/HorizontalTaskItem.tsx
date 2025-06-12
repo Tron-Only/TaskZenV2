@@ -48,7 +48,7 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
             {task.title}
           </h3>
           {task.description && (
-            <p className={cn("text-xs text-muted-foreground mt-1 truncate strikethrough-animated", isDone && "is-done")}>
+            <p className={cn("text-xs text-muted-foreground mt-1.5 truncate strikethrough-animated", isDone && "is-done")}>
               {task.description}
             </p>
           )}
@@ -56,11 +56,11 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
 
         {task.tags && task.tags.length > 0 && (
           <div className="hidden xs:flex flex-wrap gap-1 items-center shrink-0 ml-1 sm:ml-2">
-            {task.tags.slice(0, 1).map(tag => ( 
+            {task.tags.slice(0, 2).map(tag => ( 
               <Badge key={tag} variant="outline" className="text-xs px-1 py-0 font-normal bg-background/50">{tag}</Badge>
             ))}
-            {task.tags.length > 1 && (
-                <Badge variant="outline" className="text-xs px-1 py-0 font-normal bg-background/50">+{task.tags.length -1}</Badge>
+            {task.tags.length > 2 && (
+                <Badge variant="outline" className="text-xs px-1 py-0 font-normal bg-background/50">+{task.tags.length -2}</Badge>
             )}
           </div>
         )}
