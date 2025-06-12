@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { List, LayoutGrid } from "lucide-react";
-import type { ViewMode } from "@/app/page"; // Assuming ViewMode type is exported from page.tsx
+import { List, LayoutGrid, AlignJustify } from "lucide-react";
+import type { ViewMode } from "@/app/page"; 
 
 interface ViewToggleProps {
   currentView: ViewMode;
@@ -31,6 +31,16 @@ export function ViewToggle({ currentView, onViewChange }: ViewToggleProps) {
       >
         <LayoutGrid size={16} className="mr-2" />
         Kanban
+      </Button>
+      <Button
+        variant={currentView === "horizontal" ? "default" : "ghost"}
+        size="sm"
+        onClick={() => onViewChange("horizontal")}
+        className={`px-3 py-1.5 h-auto transition-colors ${currentView === 'horizontal' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:bg-background/50'}`}
+        aria-pressed={currentView === 'horizontal'}
+      >
+        <AlignJustify size={16} className="mr-2" />
+        Horizontal
       </Button>
     </div>
   );

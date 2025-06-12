@@ -23,6 +23,8 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
     e.dataTransfer.effectAllowed = "move";
   };
 
+  const isDone = task.status === "Done";
+
   return (
     <Card 
       draggable 
@@ -30,11 +32,15 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
       className={cn(
         "mb-3 cursor-grab active:cursor-grabbing transition-shadow duration-200 hover:shadow-md",
         isDragging && "opacity-50 shadow-xl scale-105",
-        task.status === "Done" && "bg-muted/30"
+        isDone && "bg-muted/30 opacity-80" // Adjusted opacity for done tasks
       )}
     >
       <CardHeader className="p-3 pb-2 relative">
-        <CardTitle className="text-base leading-tight mb-1">{task.title}</CardTitle>
+        <CardTitle className="text-base leading-tight mb-1">
+          <span className={cn("strikethrough-animated", isDone && "is-done")}>
+            {task.title}
+          </span>
+        </CardTitle>
         <div className="absolute top-2 right-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -53,7 +59,11 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
           </DropdownMenu>
         </div>
         {task.description && (
-          <CardDescription className="text-xs line-clamp-2">{task.description}</CardDescription>
+          <CardDescription className="text-xs line-clamp-2">
+            <span className={cn("strikethrough-animated", isDone && "is-done")}>
+             {task.description}
+            </span>
+          </CardDescription>
         )}
       </CardHeader>
       <CardContent className="p-3 pt-1 space-y-2">

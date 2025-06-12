@@ -28,7 +28,11 @@ export function TaskItem({ task, onEdit, onDelete, onStatusChange }: TaskItemPro
     <Card className={cn("transition-all duration-300 hover:shadow-lg", isDone && "bg-muted/50 opacity-70")}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
-          <CardTitle className={cn("text-lg leading-tight", isDone && "line-through")}>{task.title}</CardTitle>
+          <CardTitle className={cn("text-lg leading-tight")}>
+            <span className={cn("strikethrough-animated", isDone && "is-done")}>
+              {task.title}
+            </span>
+          </CardTitle>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -46,7 +50,11 @@ export function TaskItem({ task, onEdit, onDelete, onStatusChange }: TaskItemPro
           </DropdownMenu>
         </div>
         {task.description && (
-          <CardDescription className={cn("text-sm pt-1", isDone && "line-through")}>{task.description}</CardDescription>
+          <CardDescription className={cn("text-sm pt-1")}>
+            <span className={cn("strikethrough-animated", isDone && "is-done")}>
+              {task.description}
+            </span>
+          </CardDescription>
         )}
       </CardHeader>
       <CardContent className="pb-4 space-y-3">
@@ -57,6 +65,7 @@ export function TaskItem({ task, onEdit, onDelete, onStatusChange }: TaskItemPro
           </Badge>
           <Badge variant={task.status === "Done" ? "default" : task.status === "In Progress" ? "outline" : "secondary"} 
                  className={cn(
+                   "capitalize",
                    task.status === "Done" && "bg-[hsl(var(--chart-2))] text-primary-foreground",
                    task.status === "In Progress" && "border-[hsl(var(--chart-4))] text-[hsl(var(--chart-4))]"
                  )}

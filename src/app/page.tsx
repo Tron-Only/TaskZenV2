@@ -8,6 +8,7 @@ import { Header } from "@/components/layout/Header";
 import { TaskForm } from "@/components/task/TaskForm";
 import { TaskItem } from "@/components/task/TaskItem";
 import { KanbanColumn } from "@/components/task/KanbanColumn";
+import { HorizontalTaskItem } from "@/components/task/HorizontalTaskItem";
 import { SortControls } from "@/components/task/SortControls";
 import { ViewToggle } from "@/components/task/ViewToggle";
 import useLocalStorage from "@/hooks/use-local-storage";
@@ -20,7 +21,7 @@ export type SortConfig = {
   direction: "asc" | "desc";
 };
 
-export type ViewMode = "list" | "kanban";
+export type ViewMode = "list" | "kanban" | "horizontal";
 
 const priorityOrder: Record<Priority, number> = { Low: 0, Medium: 1, High: 2 };
 
@@ -172,6 +173,27 @@ export default function HomePage() {
             ))}
           </div>
         )}
+
+        {currentView === "horizontal" && (
+          <div className="space-y-3 animate-in fade-in duration-300">
+            {sortedTasks.length > 0 ? (
+              sortedTasks.map((task) => (
+                <HorizontalTaskItem
+                  key={task.id}
+                  task={task}
+                  onEdit={handleOpenForm}
+                  onDelete={handleDeleteTask}
+                  onStatusChange={handleStatusChange}
+                />
+              ))
+            ) : (
+              <div className="text-center py-10 text-muted-foreground">
+                <h2 className="text-xl mb-2">No tasks yet!</h2>
+                <p>Click "Create Task" to get started.</p>
+              </div>
+            )}
+          </div>
+        )}
       </main>
       <TaskForm
         isOpen={isFormOpen}
@@ -185,5 +207,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
