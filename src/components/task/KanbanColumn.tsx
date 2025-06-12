@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Task, TaskStatus } from "@/types";
@@ -11,9 +12,10 @@ interface KanbanColumnProps {
   onDeleteTask: (taskId: string) => void;
   onTaskDrop: (taskId: string, newStatus: TaskStatus) => void;
   draggingTaskId: string | null;
+  onPreviewTask: (task: Task) => void; // Added for preview
 }
 
-export function KanbanColumn({ status, tasks, onEditTask, onDeleteTask, onTaskDrop, draggingTaskId }: KanbanColumnProps) {
+export function KanbanColumn({ status, tasks, onEditTask, onDeleteTask, onTaskDrop, draggingTaskId, onPreviewTask }: KanbanColumnProps) {
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault(); 
     e.dataTransfer.dropEffect = "move";
@@ -50,6 +52,7 @@ export function KanbanColumn({ status, tasks, onEditTask, onDeleteTask, onTaskDr
               onEdit={onEditTask}
               onDelete={onDeleteTask}
               isDragging={draggingTaskId === task.id}
+              onPreview={onPreviewTask} // Pass down the preview handler
             />
           ))
         ) : (

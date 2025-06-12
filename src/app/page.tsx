@@ -13,6 +13,7 @@ import { KanbanColumn } from "@/components/task/KanbanColumn";
 import { HorizontalTaskItem } from "@/components/task/HorizontalTaskItem";
 import { SortControls } from "@/components/task/SortControls";
 import { ViewToggle } from "@/components/task/ViewToggle";
+import { TaskPreviewDialog } from "@/components/task/TaskPreviewDialog"; 
 import useLocalStorage from "@/hooks/use-local-storage";
 import type { Task, Priority, TaskStatus } from "@/types";
 import { TaskStatuses } from "@/types"; 
@@ -38,6 +39,9 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
+  const [previewingTask, setPreviewingTask] = useState<Task | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -51,6 +55,13 @@ export default function HomePage() {
   const handleOpenForm = (task?: Task) => {
     setEditingTask(task);
     setIsFormOpen(true);
+  };
+
+  const handleOpenPreview = (task: Task) => {
+    if (task.description) {
+      setPreviewingTask(task);
+      setIsPreviewOpen(true);
+    }
   };
 
   const handleTaskSubmit = (data: TaskFormValues, existingTaskId?: string) => {
@@ -147,10 +158,10 @@ export default function HomePage() {
         const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
         const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
         comparison = dateA - dateB;
-        if (sortConfig.direction === "desc") { // tasks without due dates last when descending
+        if (sortConfig.direction === "desc") { 
             if (dateA === Infinity && dateB !== Infinity) comparison = 1;
             if (dateB === Infinity && dateA !== Infinity) comparison = -1;
-        } else { // tasks without due dates last when ascending
+        } else { 
             if (dateA === Infinity && dateB !== Infinity) comparison = 1;
             if (dateB === Infinity && dateA !== Infinity) comparison = -1;
         }
@@ -229,6 +240,7 @@ export default function HomePage() {
                   onEdit={handleOpenForm}
                   onDelete={handleDeleteTask}
                   onStatusChange={handleStatusChange}
+                  onPreview={handleOpenPreview}
                 />
               ))
             ) : (
@@ -251,6 +263,7 @@ export default function HomePage() {
                 onDeleteTask={handleDeleteTask}
                 onTaskDrop={handleTaskDrop}
                 draggingTaskId={draggingTaskId}
+                onPreviewTask={handleOpenPreview}
               />
             ))}
              {sortedTasks.length === 0 && tasks.length > 0 && (
@@ -278,6 +291,7 @@ export default function HomePage() {
                   onEdit={handleOpenForm}
                   onDelete={handleDeleteTask}
                   onStatusChange={handleStatusChange}
+                  onPreview={handleOpenPreview}
                 />
               ))
             ) : (
@@ -294,6 +308,11 @@ export default function HomePage() {
         onOpenChange={setIsFormOpen}
         onSubmit={handleTaskSubmit}
         initialTask={editingTask}
+      />
+      <TaskPreviewDialog
+        task={previewingTask}
+        isOpen={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
       />
       <footer className="text-center py-4 border-t text-sm text-muted-foreground mt-auto">
         TaskZen - Your focus, amplified.

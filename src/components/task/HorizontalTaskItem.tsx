@@ -17,9 +17,10 @@ interface HorizontalTaskItemProps {
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
   onStatusChange: (taskId: string, status: Task["status"]) => void;
+  onPreview: (task: Task) => void;
 }
 
-export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: HorizontalTaskItemProps) {
+export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange, onPreview }: HorizontalTaskItemProps) {
   const isDone = task.status === "Done";
 
   const handleToggleDone = () => {
@@ -28,13 +29,30 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
 
   const getDueDateColor = () => {
     if (!task.dueDate || isDone) return "text-muted-foreground";
-    if (isPast(task.dueDate) && !isToday(task.dueDate)) return "text-destructive";
-    if (isToday(task.dueDate)) return "text-orange-500";
+    if (isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate))) return "text-destructive";
+    if (isToday(new Date(task.dueDate))) return "text-orange-500";
     return "text-muted-foreground";
   };
 
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+     // Prevent preview if clicking on interactive elements like checkbox, dropdown trigger, or elements within them
+    if ((e.target as HTMLElement).closest('[role="checkbox"], button, a, input, [data-radix-dropdown-menu-trigger]')) {
+      return;
+    }
+    if (task.description) {
+      onPreview(task);
+    }
+  };
+
   return (
-    <Card className={cn("transition-all duration-300 hover:shadow-md w-full", isDone && "bg-muted/50 opacity-80")}>
+    <Card 
+      className={cn(
+        "transition-all duration-300 hover:shadow-md w-full", 
+        isDone && "bg-muted/50 opacity-80",
+        task.description && "cursor-pointer"
+      )}
+      onClick={handleCardClick}
+    >
       <CardContent className="p-3 flex items-center space-x-2 sm:space-x-3">
         <Checkbox
           id={`task-horizontal-${task.id}-done`}
@@ -43,12 +61,12 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
           aria-label={isDone ? "Mark task as not done" : "Mark task as done"}
           className="shrink-0"
         />
-        <div className="flex-grow min-w-0">
+        <div className="flex-grow min-w-0 flex flex-col">
           <h3 className={cn("font-medium text-base leading-tight strikethrough-animated truncate", isDone && "is-done")}>
             {task.title}
           </h3>
-          {task.description && (
-            <p className={cn("text-xs text-muted-foreground mt-1.5 truncate strikethrough-animated", isDone && "is-done")}>
+          {task.description && ( // Ensure description exists before rendering the P tag
+            <p className={cn("text-xs text-muted-foreground truncate strikethrough-animated mt-1.5", isDone && "is-done")}>
               {task.description}
             </p>
           )}
@@ -69,8 +87,8 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
           <div className={cn("hidden sm:flex items-center text-xs shrink-0 whitespace-nowrap", getDueDateColor())}>
             <CalendarClock size={14} className="mr-1" />
             {format(new Date(task.dueDate), "MMM d")}
-            {isPast(task.dueDate) && !isToday(task.dueDate) && !isDone && <Badge variant="destructive" className="ml-1 text-xs px-1 py-0">!</Badge>}
-            {isToday(task.dueDate) && !isDone && <Badge variant="outline" className="ml-1 text-xs px-1 py-0 border-orange-500 text-orange-500">!</Badge>}
+            {isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate)) && !isDone && <Badge variant="destructive" className="ml-1 text-xs px-1 py-0">!</Badge>}
+            {isToday(new Date(task.dueDate)) && !isDone && <Badge variant="outline" className="ml-1 text-xs px-1 py-0 border-orange-500 text-orange-500">!</Badge>}
           </div>
         )}
 

@@ -16,9 +16,10 @@ interface KanbanTaskCardProps {
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
   isDragging?: boolean;
+  onPreview: (task: Task) => void;
 }
 
-export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTaskCardProps) {
+export function KanbanTaskCard({ task, onEdit, onDelete, isDragging, onPreview }: KanbanTaskCardProps) {
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData("taskId", task.id);
     e.dataTransfer.effectAllowed = "move";
@@ -33,15 +34,28 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
     return "text-muted-foreground";
   };
 
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('button, a, input, [data-radix-dropdown-menu-trigger], [role="button"]')) {
+      return;
+    }
+    if (task.description) {
+      onPreview(task);
+    }
+  };
+
   return (
     <Card 
       draggable 
       onDragStart={handleDragStart}
+      onClick={handleCardClick}
       className={cn(
         "mb-3 cursor-grab active:cursor-grabbing transition-shadow duration-200 hover:shadow-md",
         isDragging && "opacity-50 shadow-xl scale-105",
-        isDone && "bg-muted/30 opacity-80"
+        isDone && "bg-muted/30 opacity-80",
+        task.description && "hover:bg-card/90" // slight indication for preview
       )}
+      tabIndex={0} // Make it focusable for accessibility if needed
+      aria-label={`Task: ${task.title}. Click to preview or drag to move.`}
     >
       <CardHeader className="p-3 pb-2 relative">
         <CardTitle className="text-base leading-tight mb-1">
@@ -92,8 +106,8 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
           <div className={cn("text-xs flex items-center", getDueDateColor())}>
             <CalendarClock size={13} className="mr-1" />
             Due: {format(new Date(task.dueDate), "MMM d")}
-            {isPast(task.dueDate) && !isToday(task.dueDate) && !isDone && <Badge variant="destructive" className="ml-1.5 text-xs px-1 py-0">Overdue</Badge>}
-            {isToday(task.dueDate) && !isDone && <Badge variant="outline" className="ml-1.5 text-xs px-1 py-0 border-orange-500 text-orange-500">Today</Badge>}
+            {isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate)) && !isDone && <Badge variant="destructive" className="ml-1.5 text-xs px-1 py-0">Overdue</Badge>}
+            {isToday(new Date(task.dueDate)) && !isDone && <Badge variant="outline" className="ml-1.5 text-xs px-1 py-0 border-orange-500 text-orange-500">Today</Badge>}
           </div>
         )}
         <div className="text-xs text-muted-foreground pt-1">

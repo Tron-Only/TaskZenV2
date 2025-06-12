@@ -16,9 +16,10 @@ interface TaskItemProps {
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
   onStatusChange: (taskId: string, status: Task["status"]) => void;
+  onPreview: (task: Task) => void;
 }
 
-export function TaskItem({ task, onEdit, onDelete, onStatusChange }: TaskItemProps) {
+export function TaskItem({ task, onEdit, onDelete, onStatusChange, onPreview }: TaskItemProps) {
   const isDone = task.status === "Done";
 
   const handleToggleDone = () => {
@@ -28,12 +29,28 @@ export function TaskItem({ task, onEdit, onDelete, onStatusChange }: TaskItemPro
   const getDueDateColor = () => {
     if (!task.dueDate || isDone) return "text-muted-foreground";
     if (isPast(task.dueDate) && !isToday(task.dueDate)) return "text-destructive";
-    if (isToday(task.dueDate)) return "text-orange-500"; // Using a specific color for today
+    if (isToday(task.dueDate)) return "text-orange-500"; 
     return "text-muted-foreground";
   };
 
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest('button, a, input, [data-radix-dropdown-menu-trigger], [role="button"]')) {
+      return;
+    }
+    if (task.description) {
+      onPreview(task);
+    }
+  };
+
   return (
-    <Card className={cn("transition-all duration-300 hover:shadow-lg flex flex-col", isDone && "bg-muted/50 opacity-70")}>
+    <Card 
+      className={cn(
+        "transition-all duration-300 hover:shadow-lg flex flex-col", 
+        isDone && "bg-muted/50 opacity-70",
+        task.description && "cursor-pointer"
+      )}
+      onClick={handleCardClick}
+    >
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <CardTitle className={cn("text-lg leading-tight")}>
@@ -92,8 +109,8 @@ export function TaskItem({ task, onEdit, onDelete, onStatusChange }: TaskItemPro
           <div className={cn("text-xs flex items-center", getDueDateColor())}>
             <CalendarClock size={14} className="mr-1.5" />
             Due: {format(new Date(task.dueDate), "MMM d, yyyy")}
-            {isPast(task.dueDate) && !isToday(task.dueDate) && !isDone && <Badge variant="destructive" className="ml-2 text-xs px-1 py-0">Overdue</Badge>}
-            {isToday(task.dueDate) && !isDone && <Badge variant="outline" className="ml-2 text-xs px-1 py-0 border-orange-500 text-orange-500">Today</Badge>}
+            {isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate)) && !isDone && <Badge variant="destructive" className="ml-2 text-xs px-1 py-0">Overdue</Badge>}
+            {isToday(new Date(task.dueDate)) && !isDone && <Badge variant="outline" className="ml-2 text-xs px-1 py-0 border-orange-500 text-orange-500">Today</Badge>}
           </div>
         )}
          <div className="text-xs text-muted-foreground pt-1">
