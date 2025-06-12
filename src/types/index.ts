@@ -12,5 +12,4 @@ export interface Task {
   priority: Priority;
   status: TaskStatus;
   createdAt: Date;
-  dueDate?: Date;
 }

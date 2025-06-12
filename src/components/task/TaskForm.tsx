@@ -30,21 +30,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import type { Task, Priority, TaskStatus } from "@/types";
 import { Priorities, TaskStatuses } from "@/types";
-import { useEffect, useState } from "react";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title must be 100 characters or less"),
   description: z.string().max(500, "Description must be 500 characters or less").optional(),
   priority: z.enum(Priorities),
   status: z.enum(TaskStatuses),
-  dueDate: z.date().optional(),
 });
 
 type TaskFormValues = z.infer<typeof taskFormSchema>;
@@ -64,11 +58,8 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
       description: "",
       priority: "Medium",
       status: "To Do",
-      dueDate: undefined,
     },
   });
-
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) { // Reset form only when dialog opens
@@ -78,7 +69,6 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
           description: initialTask.description || "",
           priority: initialTask.priority,
           status: initialTask.status,
-          dueDate: initialTask.dueDate ? new Date(initialTask.dueDate) : undefined,
         });
       } else {
         form.reset({
@@ -86,7 +76,6 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
           description: "",
           priority: "Medium",
           status: "To Do",
-          dueDate: undefined,
         });
       }
     }
@@ -180,48 +169,6 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="dueDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Due Date (Optional)</FormLabel>
-                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={(date) => {
-                           field.onChange(date);
-                           setIsCalendarOpen(false);
-                        }}
-                        disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))} // Disable past dates
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
               <Button type="submit" className="bg-primary hover:bg-primary/90">

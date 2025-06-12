@@ -4,8 +4,8 @@
 import type { Task } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, MoreVertical, CalendarDays } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { Edit2, Trash2, MoreVertical } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 import { PriorityIcon } from "./PriorityIcon";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
@@ -77,12 +77,6 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
         <div className="text-xs text-muted-foreground pt-1">
             Created: {formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}
         </div>
-        {task.dueDate && (
-          <div className="text-xs text-muted-foreground flex items-center">
-            <CalendarDays size={12} className="mr-1" />
-            Due: {format(new Date(task.dueDate), "MMM d, yyyy")}
-          </div>
-        )}
       </CardContent>
     </Card>
   );

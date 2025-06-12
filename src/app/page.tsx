@@ -17,7 +17,7 @@ import { TaskStatuses } from "@/types"; // For Kanban columns
 import { useToast } from "@/hooks/use-toast";
 
 export type SortConfig = {
-  key: "priority" | "createdAt" | "dueDate";
+  key: "priority" | "createdAt";
   direction: "asc" | "desc";
 };
 
@@ -63,7 +63,7 @@ export default function HomePage() {
     if (existingTaskId) {
       setTasks(
         tasks.map((task) =>
-          task.id === existingTaskId ? { ...task, ...data, dueDate: data.dueDate ? new Date(data.dueDate) : undefined } : task
+          task.id === existingTaskId ? { ...task, ...data } : task
         )
       );
       toast({ title: "Task Updated", description: `"${data.title}" has been updated.` });
@@ -72,7 +72,6 @@ export default function HomePage() {
         ...data,
         id: crypto.randomUUID(),
         createdAt: new Date(),
-        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
       };
       setTasks([newTask, ...tasks]);
       toast({ title: "Task Created", description: `"${data.title}" has been added.` });
@@ -110,16 +109,6 @@ export default function HomePage() {
         comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
       } else if (sortConfig.key === "createdAt") {
         comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      } else if (sortConfig.key === "dueDate") {
-        if (a.dueDate && b.dueDate) {
-          comparison = new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-        } else if (a.dueDate) {
-          comparison = -1; // Tasks with due dates come first
-        } else if (b.dueDate) {
-          comparison = 1;  // Tasks with due dates come first
-        } else {
-          comparison = 0; // Both tasks without due dates
-        }
       }
       return sortConfig.direction === "asc" ? comparison : -comparison;
     });
