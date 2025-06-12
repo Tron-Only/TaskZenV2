@@ -12,7 +12,7 @@ interface SortControlsProps {
 }
 
 export function SortControls({ sortConfig, onSortChange }: SortControlsProps) {
-  const handleSortKeyChange = (key: "priority" | "createdAt") => {
+  const handleSortKeyChange = (key: SortConfig['key']) => {
     onSortChange({ ...sortConfig, key });
   };
 
@@ -33,6 +33,7 @@ export function SortControls({ sortConfig, onSortChange }: SortControlsProps) {
         <SelectContent>
           <SelectItem value="priority">Priority</SelectItem>
           <SelectItem value="createdAt">Created Date</SelectItem>
+          <SelectItem value="dueDate">Due Date</SelectItem>
         </SelectContent>
       </Select>
       <Button variant="outline" size="icon" onClick={toggleSortDirection} className="h-9 w-9" aria-label="Toggle sort direction">

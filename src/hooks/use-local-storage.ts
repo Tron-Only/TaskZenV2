@@ -12,9 +12,8 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, Dispatch<SetState
       const item = window.localStorage.getItem(key);
       if (!item) return initialValue;
       
-      // Simplified parsing, as only createdAt needs special handling now
       return JSON.parse(item, (k, v) => {
-        if (k === 'createdAt') { 
+        if (k === 'createdAt' || k === 'dueDate') { // Added dueDate
           return v ? new Date(v) : undefined;
         }
         return v;
@@ -39,3 +38,4 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, Dispatch<SetState
 }
 
 export default useLocalStorage;
+

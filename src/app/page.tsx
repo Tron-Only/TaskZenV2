@@ -15,11 +15,11 @@ import { SortControls } from "@/components/task/SortControls";
 import { ViewToggle } from "@/components/task/ViewToggle";
 import useLocalStorage from "@/hooks/use-local-storage";
 import type { Task, Priority, TaskStatus } from "@/types";
-import { TaskStatuses } from "@/types"; // For Kanban columns
+import { TaskStatuses } from "@/types"; 
 import { useToast } from "@/hooks/use-toast";
 
 export type SortConfig = {
-  key: "priority" | "createdAt";
+  key: "priority" | "createdAt" | "dueDate";
   direction: "asc" | "desc";
 };
 
@@ -56,12 +56,13 @@ export default function HomePage() {
   const handleTaskSubmit = (data: TaskFormValues, existingTaskId?: string) => {
     const tagsArray = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : [];
     
-    const taskDataForStorage = {
+    const taskDataForStorage: Omit<Task, 'id' | 'createdAt'> = {
       title: data.title,
       description: data.description,
       priority: data.priority,
       status: data.status,
       tags: tagsArray,
+      dueDate: data.dueDate,
     };
 
     if (existingTaskId) {
@@ -142,6 +143,17 @@ export default function HomePage() {
         comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
       } else if (sortConfig.key === "createdAt") {
         comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      } else if (sortConfig.key === "dueDate") {
+        const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+        const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+        comparison = dateA - dateB;
+        if (sortConfig.direction === "desc") { // tasks without due dates last when descending
+            if (dateA === Infinity && dateB !== Infinity) comparison = 1;
+            if (dateB === Infinity && dateA !== Infinity) comparison = -1;
+        } else { // tasks without due dates last when ascending
+            if (dateA === Infinity && dateB !== Infinity) comparison = 1;
+            if (dateB === Infinity && dateA !== Infinity) comparison = -1;
+        }
       }
       return sortConfig.direction === "asc" ? comparison : -comparison;
     });

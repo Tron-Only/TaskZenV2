@@ -4,8 +4,8 @@
 import type { Task } from "@/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, MoreVertical } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { Edit2, Trash2, MoreVertical, CalendarClock } from "lucide-react";
+import { format, formatDistanceToNow, isPast, isToday } from "date-fns";
 import { PriorityIcon } from "./PriorityIcon";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
@@ -22,10 +22,16 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData("taskId", task.id);
     e.dataTransfer.effectAllowed = "move";
-    // Consider setting draggingTaskId via a callback to parent if global visual feedback is needed
   };
 
   const isDone = task.status === "Done";
+
+  const getDueDateColor = () => {
+    if (!task.dueDate || isDone) return "text-muted-foreground";
+    if (isPast(task.dueDate) && !isToday(task.dueDate)) return "text-destructive";
+    if (isToday(task.dueDate)) return "text-orange-500";
+    return "text-muted-foreground";
+  };
 
   return (
     <Card 
@@ -80,6 +86,14 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
             {task.tags.map(tag => (
               <Badge key={tag} variant="outline" className="text-xs px-1 py-0 font-normal bg-background/50">{tag}</Badge>
             ))}
+          </div>
+        )}
+        {task.dueDate && (
+          <div className={cn("text-xs flex items-center", getDueDateColor())}>
+            <CalendarClock size={13} className="mr-1" />
+            Due: {format(new Date(task.dueDate), "MMM d")}
+            {isPast(task.dueDate) && !isToday(task.dueDate) && !isDone && <Badge variant="destructive" className="ml-1.5 text-xs px-1 py-0">Overdue</Badge>}
+            {isToday(task.dueDate) && !isDone && <Badge variant="outline" className="ml-1.5 text-xs px-1 py-0 border-orange-500 text-orange-500">Today</Badge>}
           </div>
         )}
         <div className="text-xs text-muted-foreground pt-1">

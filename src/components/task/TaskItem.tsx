@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, MoreVertical, CheckCircle, Circle } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { Edit2, Trash2, MoreVertical, CheckCircle, Circle, CalendarClock } from "lucide-react";
+import { format, formatDistanceToNow, isPast, isToday } from "date-fns";
 import { PriorityIcon } from "./PriorityIcon";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,13 @@ export function TaskItem({ task, onEdit, onDelete, onStatusChange }: TaskItemPro
 
   const handleToggleDone = () => {
     onStatusChange(task.id, isDone ? "To Do" : "Done");
+  };
+
+  const getDueDateColor = () => {
+    if (!task.dueDate || isDone) return "text-muted-foreground";
+    if (isPast(task.dueDate) && !isToday(task.dueDate)) return "text-destructive";
+    if (isToday(task.dueDate)) return "text-orange-500"; // Using a specific color for today
+    return "text-muted-foreground";
   };
 
   return (
@@ -79,6 +86,14 @@ export function TaskItem({ task, onEdit, onDelete, onStatusChange }: TaskItemPro
             {task.tags.map(tag => (
               <Badge key={tag} variant="outline" className="text-xs px-1.5 py-0.5 font-normal bg-background/50">{tag}</Badge>
             ))}
+          </div>
+        )}
+        {task.dueDate && (
+          <div className={cn("text-xs flex items-center", getDueDateColor())}>
+            <CalendarClock size={14} className="mr-1.5" />
+            Due: {format(new Date(task.dueDate), "MMM d, yyyy")}
+            {isPast(task.dueDate) && !isToday(task.dueDate) && !isDone && <Badge variant="destructive" className="ml-2 text-xs px-1 py-0">Overdue</Badge>}
+            {isToday(task.dueDate) && !isDone && <Badge variant="outline" className="ml-2 text-xs px-1 py-0 border-orange-500 text-orange-500">Today</Badge>}
           </div>
         )}
          <div className="text-xs text-muted-foreground pt-1">

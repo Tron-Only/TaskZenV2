@@ -7,8 +7,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit2, Trash2, MoreVertical } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { Edit2, Trash2, MoreVertical, CalendarClock } from "lucide-react";
+import { format, formatDistanceToNow, isPast, isToday } from "date-fns";
 import { PriorityIcon } from "./PriorityIcon";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +24,13 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
 
   const handleToggleDone = () => {
     onStatusChange(task.id, isDone ? "To Do" : "Done");
+  };
+
+  const getDueDateColor = () => {
+    if (!task.dueDate || isDone) return "text-muted-foreground";
+    if (isPast(task.dueDate) && !isToday(task.dueDate)) return "text-destructive";
+    if (isToday(task.dueDate)) return "text-orange-500";
+    return "text-muted-foreground";
   };
 
   return (
@@ -49,12 +56,21 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
 
         {task.tags && task.tags.length > 0 && (
           <div className="hidden xs:flex flex-wrap gap-1 items-center shrink-0 ml-1 sm:ml-2">
-            {task.tags.slice(0, 2).map(tag => ( // Show max 2 tags for horizontal view to save space
+            {task.tags.slice(0, 1).map(tag => ( 
               <Badge key={tag} variant="outline" className="text-xs px-1 py-0 font-normal bg-background/50">{tag}</Badge>
             ))}
-            {task.tags.length > 2 && (
-                <Badge variant="outline" className="text-xs px-1 py-0 font-normal bg-background/50">...</Badge>
+            {task.tags.length > 1 && (
+                <Badge variant="outline" className="text-xs px-1 py-0 font-normal bg-background/50">+{task.tags.length -1}</Badge>
             )}
+          </div>
+        )}
+        
+        {task.dueDate && (
+          <div className={cn("hidden sm:flex items-center text-xs shrink-0 whitespace-nowrap", getDueDateColor())}>
+            <CalendarClock size={14} className="mr-1" />
+            {format(new Date(task.dueDate), "MMM d")}
+            {isPast(task.dueDate) && !isToday(task.dueDate) && !isDone && <Badge variant="destructive" className="ml-1 text-xs px-1 py-0">!</Badge>}
+            {isToday(task.dueDate) && !isDone && <Badge variant="outline" className="ml-1 text-xs px-1 py-0 border-orange-500 text-orange-500">!</Badge>}
           </div>
         )}
 
