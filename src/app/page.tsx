@@ -3,9 +3,11 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { PlusCircle } from "lucide-react";
 import { Header } from "@/components/layout/Header";
-import { TaskForm } from "@/components/task/TaskForm";
+import { TaskForm, type TaskFormValues } from "@/components/task/TaskForm";
 import { TaskItem } from "@/components/task/TaskItem";
 import { KanbanColumn } from "@/components/task/KanbanColumn";
 import { HorizontalTaskItem } from "@/components/task/HorizontalTaskItem";
@@ -31,45 +33,47 @@ export default function HomePage() {
   const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: "createdAt", direction: "desc" });
   const [currentView, setCurrentView] = useState<ViewMode>("list");
-  const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null); // For visual feedback while dragging
+  const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const { toast } = useToast();
 
-  // Effect to handle drag start and end for visual feedback (optional)
   useEffect(() => {
-    const handleDragStart = (event: DragEvent) => {
-      if (event.dataTransfer?.types.includes("taskid")) { 
-        // This part is tricky to get right without direct access to the draggable item's onDragStart
-        // For now, KanbanTaskCard will handle its own isDragging visual state via prop
-      }
-    };
     const handleDragEnd = () => setDraggingTaskId(null);
-
-    document.addEventListener("dragstart", handleDragStart);
     document.addEventListener("dragend", handleDragEnd);
     return () => {
-      document.removeEventListener("dragstart", handleDragStart);
       document.removeEventListener("dragend", handleDragEnd);
     };
   }, []);
-
 
   const handleOpenForm = (task?: Task) => {
     setEditingTask(task);
     setIsFormOpen(true);
   };
 
-  const handleTaskSubmit = (data: Omit<Task, "id" | "createdAt">, existingTaskId?: string) => {
+  const handleTaskSubmit = (data: TaskFormValues, existingTaskId?: string) => {
+    const tagsArray = data.tags ? data.tags.split(',').map(tag => tag.trim()).filter(tag => tag !== '') : [];
+    
+    const taskDataForStorage = {
+      title: data.title,
+      description: data.description,
+      priority: data.priority,
+      status: data.status,
+      tags: tagsArray,
+    };
+
     if (existingTaskId) {
       setTasks(
         tasks.map((task) =>
-          task.id === existingTaskId ? { ...task, ...data } : task
+          task.id === existingTaskId ? { ...task, ...taskDataForStorage } : task
         )
       );
       toast({ title: "Task Updated", description: `"${data.title}" has been updated.` });
     } else {
       const newTask: Task = {
-        ...data,
+        ...taskDataForStorage,
         id: crypto.randomUUID(),
         createdAt: new Date(),
       };
@@ -98,12 +102,41 @@ export default function HomePage() {
         task.id === taskId ? { ...task, status: newStatus } : task
       )
     );
-    setDraggingTaskId(null); // Clear dragging state
+    setDraggingTaskId(null);
   }, [setTasks]);
 
+  const allUniqueTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    tasks.forEach(task => task.tags?.forEach(tag => tagSet.add(tag)));
+    return Array.from(tagSet).sort();
+  }, [tasks]);
+
+  const handleTagClick = (tag: string) => {
+    setSelectedTags(prev =>
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const filteredTasks = useMemo(() => {
+    let currentTasks = tasks;
+
+    if (searchTerm) {
+      currentTasks = currentTasks.filter(task =>
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    if (selectedTags.length > 0) {
+      currentTasks = currentTasks.filter(task =>
+        selectedTags.every(stag => task.tags?.includes(stag))
+      );
+    }
+    return currentTasks;
+  }, [tasks, searchTerm, selectedTags]);
 
   const sortedTasks = useMemo(() => {
-    return [...tasks].sort((a, b) => {
+    return [...filteredTasks].sort((a, b) => {
       let comparison = 0;
       if (sortConfig.key === "priority") {
         comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
@@ -112,7 +145,7 @@ export default function HomePage() {
       }
       return sortConfig.direction === "asc" ? comparison : -comparison;
     });
-  }, [tasks, sortConfig]);
+  }, [filteredTasks, sortConfig]);
 
   const tasksByStatus = useMemo(() => {
     return TaskStatuses.reduce((acc, status) => {
@@ -126,12 +159,50 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <SortControls sortConfig={sortConfig} onSortChange={setSortConfig} />
-            <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
+        <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
+          <div className="flex flex-col gap-4 w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+              <Input
+                placeholder="Search tasks..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full sm:w-auto md:max-w-xs"
+              />
+              <SortControls sortConfig={sortConfig} onSortChange={setSortConfig} />
+              <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
+            </div>
+            {allUniqueTags.length > 0 || selectedTags.length > 0 ? (
+              <div className="flex flex-col gap-2 p-3 border rounded-lg bg-card shadow-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-card-foreground">Filter by tags:</span>
+                  {selectedTags.length > 0 && (
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedTags([])} className="text-xs h-auto py-0.5 px-1.5 text-primary hover:bg-primary/10">Clear Filters</Button>
+                  )}
+                </div>
+                {allUniqueTags.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {allUniqueTags.map(tag => (
+                      <Badge
+                        key={tag}
+                        variant={selectedTags.includes(tag) ? "default" : "secondary"}
+                        onClick={() => handleTagClick(tag)}
+                        className="cursor-pointer transition-all hover:opacity-80"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-sm text-muted-foreground italic">No tags defined to filter by.</span>
+                )}
+              </div>
+            ) : (
+               <div className="p-3 border rounded-lg bg-card shadow-sm">
+                 <span className="text-sm text-muted-foreground italic">No tags defined yet. Add tags to tasks to enable filtering.</span>
+               </div>
+            )}
           </div>
-          <Button onClick={() => handleOpenForm()} className="w-full sm:w-auto">
+          <Button onClick={() => handleOpenForm()} className="w-full sm:w-auto md:mt-0 mt-4 self-start md:self-auto">
             <PlusCircle size={18} className="mr-2" /> Create Task
           </Button>
         </div>
@@ -150,8 +221,8 @@ export default function HomePage() {
               ))
             ) : (
               <div className="col-span-full text-center py-10 text-muted-foreground">
-                <h2 className="text-xl mb-2">No tasks yet!</h2>
-                <p>Click "Create Task" to get started.</p>
+                <h2 className="text-xl mb-2">No tasks match your filters!</h2>
+                <p>Try adjusting your search or tag filters, or create a new task.</p>
               </div>
             )}
           </div>
@@ -170,6 +241,18 @@ export default function HomePage() {
                 draggingTaskId={draggingTaskId}
               />
             ))}
+             {sortedTasks.length === 0 && tasks.length > 0 && (
+                <div className="md:col-span-3 text-center py-10 text-muted-foreground">
+                    <h2 className="text-xl mb-2">No tasks match your filters!</h2>
+                    <p>Try adjusting your search or tag filters.</p>
+                </div>
+            )}
+            {tasks.length === 0 && (
+                 <div className="md:col-span-3 text-center py-10 text-muted-foreground">
+                    <h2 className="text-xl mb-2">No tasks yet!</h2>
+                    <p>Click "Create Task" to get started.</p>
+                </div>
+            )}
           </div>
         )}
 
@@ -187,8 +270,8 @@ export default function HomePage() {
               ))
             ) : (
               <div className="text-center py-10 text-muted-foreground">
-                <h2 className="text-xl mb-2">No tasks yet!</h2>
-                <p>Click "Create Task" to get started.</p>
+                <h2 className="text-xl mb-2">No tasks match your filters!</h2>
+                <p>Try adjusting your search or tag filters, or create a new task.</p>
               </div>
             )}
           </div>

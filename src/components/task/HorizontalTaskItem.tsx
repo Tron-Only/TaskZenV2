@@ -46,6 +46,15 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
             </p>
           )}
         </div>
+
+        {task.tags && task.tags.length > 0 && (
+          <div className="hidden sm:flex flex-wrap gap-1 items-center shrink-0 ml-2">
+            {task.tags.map(tag => (
+              <Badge key={tag} variant="outline" className="text-xs px-1 py-0 font-normal bg-background/50">{tag}</Badge>
+            ))}
+          </div>
+        )}
+
         <div className="flex items-center space-x-2 shrink-0">
           <PriorityIcon priority={task.priority} iconProps={{ size: 16 }} />
           <Badge variant={task.priority === "High" ? "destructive" : task.priority === "Medium" ? "secondary" : "outline"} className="capitalize text-xs px-1.5 py-0.5 whitespace-nowrap">
@@ -86,3 +95,4 @@ export function HorizontalTaskItem({ task, onEdit, onDelete, onStatusChange }: H
     </Card>
   );
 }
+

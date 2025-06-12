@@ -22,6 +22,7 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.setData("taskId", task.id);
     e.dataTransfer.effectAllowed = "move";
+    // Consider setting draggingTaskId via a callback to parent if global visual feedback is needed
   };
 
   const isDone = task.status === "Done";
@@ -33,7 +34,7 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
       className={cn(
         "mb-3 cursor-grab active:cursor-grabbing transition-shadow duration-200 hover:shadow-md",
         isDragging && "opacity-50 shadow-xl scale-105",
-        isDone && "bg-muted/30 opacity-80" // Adjusted opacity for done tasks
+        isDone && "bg-muted/30 opacity-80"
       )}
     >
       <CardHeader className="p-3 pb-2 relative">
@@ -74,6 +75,13 @@ export function KanbanTaskCard({ task, onEdit, onDelete, isDragging }: KanbanTas
             {task.priority}
           </Badge>
         </div>
+        {task.tags && task.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {task.tags.map(tag => (
+              <Badge key={tag} variant="outline" className="text-xs px-1 py-0 font-normal bg-background/50">{tag}</Badge>
+            ))}
+          </div>
+        )}
         <div className="text-xs text-muted-foreground pt-1">
             Created: {formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}
         </div>

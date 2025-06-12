@@ -39,9 +39,10 @@ const taskFormSchema = z.object({
   description: z.string().max(500, "Description must be 500 characters or less").optional(),
   priority: z.enum(Priorities),
   status: z.enum(TaskStatuses),
+  tags: z.string().optional(), // Tags as a comma-separated string
 });
 
-type TaskFormValues = z.infer<typeof taskFormSchema>;
+export type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 interface TaskFormProps {
   isOpen: boolean;
@@ -58,6 +59,7 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
       description: "",
       priority: "Medium",
       status: "To Do",
+      tags: "",
     },
   });
 
@@ -69,6 +71,7 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
           description: initialTask.description || "",
           priority: initialTask.priority,
           status: initialTask.status,
+          tags: initialTask.tags ? initialTask.tags.join(', ') : "",
         });
       } else {
         form.reset({
@@ -76,6 +79,7 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
           description: "",
           priority: "Medium",
           status: "To Do",
+          tags: "",
         });
       }
     }
@@ -120,6 +124,20 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
                     <Textarea placeholder="e.g., Buy milk, eggs, and bread" {...field} />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., work, personal, urgent" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-xs text-muted-foreground">Enter tags separated by commas.</p>
                 </FormItem>
               )}
             />
