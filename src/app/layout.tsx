@@ -3,10 +3,26 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
+import PWA from "@/components/PWA";
 
 export const metadata: Metadata = {
   title: 'TaskZen',
   description: 'Organize your tasks efficiently with TaskZen.',
+  manifest: '/manifest.json',
+  themeColor: '#000000',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'TaskZen',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: '/icons/icon-192x192.png',
+    apple: '/icons/icon-192x192.png',
+  },
 };
 
 export default function RootLayout({
@@ -25,6 +41,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="light" storageKey="taskzen-theme">
           {children}
           <Toaster />
+          <PWA />
         </ThemeProvider>
       </body>
     </html>
