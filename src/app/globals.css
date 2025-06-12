@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -108,6 +109,13 @@ body {
     animation: radial-reveal-animation 0.6s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
 
+  .overlay-bg-light {
+    background-color: hsl(210 17% 93%); /* Light theme background */
+  }
+  .overlay-bg-dark {
+    background-color: hsl(220 10% 10%); /* Dark theme background */
+  }
+
   .strikethrough-animated {
     position: relative;
     display: inline-block; /* Adjust as needed, could be block */
@@ -140,3 +148,4 @@ body {
     clip-path: circle(150vmax at var(--click-x) var(--click-y));
   }
 }
+

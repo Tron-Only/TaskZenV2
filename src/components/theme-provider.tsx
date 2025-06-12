@@ -66,16 +66,14 @@ export function ThemeProvider({
 
   const toggleTheme = useCallback((event?: React.MouseEvent) => {
     const newTheme = theme === "light" ? "dark" : "light";
-    if (event && typeof window !== 'undefined' && 'startViewTransition' in document) {
+    // Always attempt custom animation if event is provided
+    if (event && typeof window !== 'undefined') {
       setClickPosition({ x: event.clientX, y: event.clientY });
-      setOverlayTheme(newTheme); // Set overlay to the theme we are transitioning TO
+      setOverlayTheme(newTheme);
       setIsAnimating(true);
-      // The actual theme change (and class on <html>) will happen after the animation starts
-      // or can be deferred slightly for the overlay to pick up the *old* theme's styles if needed.
-      // For simplicity, we change it immediately and the overlay will pick up the new theme's bg.
       setThemeState(newTheme);
     } else {
-      setThemeState(newTheme); // Fallback for no event or no View Transitions API
+      setThemeState(newTheme); // Fallback for no event (e.g., programmatic change)
     }
   }, [theme]);
 
@@ -95,7 +93,7 @@ export function ThemeProvider({
       {children}
       {isAnimating && clickPosition && (
         <div
-          className={`theme-transition-overlay radial-reveal bg-background`}
+          className={`theme-transition-overlay radial-reveal ${overlayTheme === 'dark' ? 'overlay-bg-dark' : 'overlay-bg-light'}`}
           style={{
             '--click-x': `${clickPosition.x}px`,
             '--click-y': `${clickPosition.y}px`,
@@ -114,3 +112,4 @@ export const useTheme = () => {
   }
   return context;
 };
+
