@@ -15,15 +15,19 @@ interface ThemeProviderState {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
+  isIconAnimating: boolean;
 }
 
 const initialState: ThemeProviderState = {
   theme: "light",
   setTheme: () => null,
   toggleTheme: () => null,
+  isIconAnimating: false,
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
+
+const ICON_ANIMATION_DURATION = 500; // ms, should match CSS animation
 
 export function ThemeProvider({
   children,
@@ -43,6 +47,9 @@ export function ThemeProvider({
     return defaultTheme;
   });
 
+  const [isIconAnimating, setIsIconAnimating] = useState(false);
+  const animationTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     if (typeof window === 'undefined' || !theme) return;
 
@@ -61,13 +68,30 @@ export function ThemeProvider({
   };
 
   const toggleTheme = useCallback(() => {
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+    setIsIconAnimating(true);
     setThemeState((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    animationTimeoutRef.current = setTimeout(() => {
+      setIsIconAnimating(false);
+    }, ICON_ANIMATION_DURATION);
+  }, []);
+  
+
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
   }, []);
 
   const value = {
     theme,
     setTheme,
     toggleTheme,
+    isIconAnimating,
   };
 
   return (

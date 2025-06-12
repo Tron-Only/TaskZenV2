@@ -8,14 +8,14 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 export function Header() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, isIconAnimating } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleThemeToggle = () => {
+  const handleThemeToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
     toggleTheme();
   };
 
@@ -26,12 +26,18 @@ export function Header() {
           <ListChecks className="h-8 w-8 text-primary mr-3" />
           <h1 className="text-3xl font-headline font-bold text-primary">TaskZen</h1>
         </div>
-        <Button variant="outline" size="icon" onClick={handleThemeToggle} aria-label="Toggle theme">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={handleThemeToggle} 
+          aria-label="Toggle theme"
+          className="relative overflow-hidden" // Ensures icon stays within bounds during animation
+        >
           {mounted ? (
             theme === 'light' ? (
-              <Moon className={cn("h-[1.2rem] w-[1.2rem]")} />
+              <Moon className={cn("h-[1.2rem] w-[1.2rem]", isIconAnimating && "animate-theme-icon-spin")} />
             ) : (
-              <Sun className={cn("h-[1.2rem] w-[1.2rem] fill-current")} />
+              <Sun className={cn("h-[1.2rem] w-[1.2rem] fill-current", isIconAnimating && "animate-theme-icon-spin")} />
             )
           ) : (
             <div className="h-[1.2rem] w-[1.2rem]" /> 

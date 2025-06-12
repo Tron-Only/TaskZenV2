@@ -117,4 +117,19 @@ body {
   .strikethrough-animated.is-done::after {
     transform: scaleX(1); /* Line is fully drawn */
   }
+
+  @keyframes theme-icon-spin {
+    from {
+      transform: rotate(0deg) scale(1);
+    }
+    50% {
+      transform: rotate(180deg) scale(1.2);
+    }
+    to {
+      transform: rotate(360deg) scale(1);
+    }
+  }
+  .animate-theme-icon-spin {
+    animation: theme-icon-spin 0.5s ease-in-out;
+  }
 }
