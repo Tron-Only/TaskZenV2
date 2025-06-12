@@ -164,17 +164,16 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
-                          variant={"outline"}
+                          variant="outline"
                           className={cn(
                             "w-full pl-3 text-left font-normal",
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
+                          {field.value
+                            ? format(field.value as Date, "PPP")
+                            : <span>Pick a date</span>
+                          }
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
                       </FormControl>
@@ -183,11 +182,10 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={(date) => field.onChange(date)}
-                        disabled={(date) =>
-                          date < new Date(new Date().setHours(0,0,0,0)) // Disable past dates
+                        onSelect={date => field.onChange(date)}
+                        dayDisabled={date =>
+                          date < new Date(new Date().setHours(0, 0, 0, 0))
                         }
-                        initialFocus
                       />
                     </PopoverContent>
                   </Popover>
