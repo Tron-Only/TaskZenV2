@@ -4,9 +4,15 @@
 import { ListChecks, Sun, Moon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
+import { useState, useEffect } from 'react';
 
 export function Header() {
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleThemeToggle = (event: React.MouseEvent) => {
     toggleTheme(event);
@@ -20,10 +26,15 @@ export function Header() {
           <h1 className="text-3xl font-headline font-bold text-primary">TaskZen</h1>
         </div>
         <Button variant="outline" size="icon" onClick={handleThemeToggle} aria-label="Toggle theme">
-          {theme === 'light' ? (
-            <Moon className="h-[1.2rem] w-[1.2rem]" />
+          {mounted ? (
+            theme === 'light' ? (
+              <Moon className="h-[1.2rem] w-[1.2rem]" />
+            ) : (
+              <Sun className="h-[1.2rem] w-[1.2rem] fill-current" />
+            )
           ) : (
-            <Sun className="h-[1.2rem] w-[1.2rem] fill-current" />
+            // Render a placeholder or null during server render and initial client render before mount
+            <div className="h-[1.2rem] w-[1.2rem]" /> // Simple placeholder to maintain layout
           )}
           <span className="sr-only">Toggle theme</span>
         </Button>
