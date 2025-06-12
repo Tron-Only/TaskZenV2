@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
@@ -36,7 +37,7 @@ export default function HomePage() {
   // Effect to handle drag start and end for visual feedback (optional)
   useEffect(() => {
     const handleDragStart = (event: DragEvent) => {
-      if (event.dataTransfer?.types.includes("taskid")) { // A bit of a hack, better to set on actual draggable item
+      if (event.dataTransfer?.types.includes("taskid")) { 
         // This part is tricky to get right without direct access to the draggable item's onDragStart
         // For now, KanbanTaskCard will handle its own isDragging visual state via prop
       }
@@ -61,7 +62,7 @@ export default function HomePage() {
     if (existingTaskId) {
       setTasks(
         tasks.map((task) =>
-          task.id === existingTaskId ? { ...task, ...data, dueDate: data.dueDate ? new Date(data.dueDate) : undefined } : task
+          task.id === existingTaskId ? { ...task, ...data, dueDate: data.dueDate } : task
         )
       );
       toast({ title: "Task Updated", description: `"${data.title}" has been updated.` });
@@ -70,7 +71,7 @@ export default function HomePage() {
         ...data,
         id: crypto.randomUUID(),
         createdAt: new Date(),
-        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+        dueDate: data.dueDate, // data.dueDate is already a Date object or undefined from the form
       };
       setTasks([newTask, ...tasks]);
       toast({ title: "Task Created", description: `"${data.title}" has been added.` });
@@ -107,13 +108,15 @@ export default function HomePage() {
       if (sortConfig.key === "priority") {
         comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
       } else if (sortConfig.key === "dueDate") {
-        const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
-        const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+        // a.dueDate and b.dueDate should be Date objects or undefined
+        const dateA = a.dueDate ? a.dueDate.getTime() : Infinity;
+        const dateB = b.dueDate ? b.dueDate.getTime() : Infinity;
         comparison = dateA - dateB;
          if (dateA === Infinity && dateB !== Infinity) comparison = sortConfig.direction === 'asc' ? 1 : -1;
          if (dateB === Infinity && dateA !== Infinity) comparison = sortConfig.direction === 'asc' ? -1 : 1;
       } else { // createdAt
-        comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        // a.createdAt and b.createdAt should be Date objects
+        comparison = a.createdAt.getTime() - b.createdAt.getTime();
       }
       return sortConfig.direction === "asc" ? comparison : -comparison;
     });
@@ -190,3 +193,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
