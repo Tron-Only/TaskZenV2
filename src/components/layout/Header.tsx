@@ -8,15 +8,15 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 export function Header() {
-  const { theme, toggleTheme, isAnimating } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleThemeToggle = (event: React.MouseEvent) => {
-    toggleTheme(event);
+  const handleThemeToggle = () => {
+    toggleTheme();
   };
 
   return (
@@ -29,9 +29,9 @@ export function Header() {
         <Button variant="outline" size="icon" onClick={handleThemeToggle} aria-label="Toggle theme">
           {mounted ? (
             theme === 'light' ? (
-              <Moon className={cn("h-[1.2rem] w-[1.2rem]", isAnimating && "animate-theme-icon-spin")} />
+              <Moon className={cn("h-[1.2rem] w-[1.2rem]")} />
             ) : (
-              <Sun className={cn("h-[1.2rem] w-[1.2rem] fill-current", isAnimating && "animate-theme-icon-spin")} />
+              <Sun className={cn("h-[1.2rem] w-[1.2rem] fill-current")} />
             )
           ) : (
             <div className="h-[1.2rem] w-[1.2rem]" /> 
