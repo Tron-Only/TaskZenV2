@@ -92,7 +92,7 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px] w-[90vw] max-w-lg">
         <DialogHeader>
           <DialogTitle>{initialTask ? "Edit Task" : "Create New Task"}</DialogTitle>
           <DialogDescription>

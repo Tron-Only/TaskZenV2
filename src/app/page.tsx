@@ -159,14 +159,14 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row justify-between items-start mb-6 gap-4">
-          <div className="flex flex-col gap-4 w-full md:w-auto">
-            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+        <div className="flex flex-col lg:flex-row justify-between items-start mb-6 gap-4">
+          <div className="flex flex-col gap-4 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row flex-wrap items-center gap-2 sm:gap-4">
               <Input
                 placeholder="Search tasks..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-auto md:max-w-xs"
+                className="w-full sm:flex-1 md:max-w-xs"
               />
               <SortControls sortConfig={sortConfig} onSortChange={setSortConfig} />
               <ViewToggle currentView={currentView} onViewChange={setCurrentView} />
@@ -202,7 +202,7 @@ export default function HomePage() {
                </div>
             )}
           </div>
-          <Button onClick={() => handleOpenForm()} className="w-full sm:w-auto md:mt-0 mt-4 self-start md:self-auto">
+          <Button onClick={() => handleOpenForm()} className="w-full lg:w-auto mt-4 lg:mt-0 self-start lg:self-auto">
             <PlusCircle size={18} className="mr-2" /> Create Task
           </Button>
         </div>
@@ -229,7 +229,7 @@ export default function HomePage() {
         )}
 
         {currentView === "kanban" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-300">
             {TaskStatuses.map((status) => (
               <KanbanColumn
                 key={status}
@@ -242,13 +242,13 @@ export default function HomePage() {
               />
             ))}
              {sortedTasks.length === 0 && tasks.length > 0 && (
-                <div className="md:col-span-3 text-center py-10 text-muted-foreground">
+                <div className="md:col-span-full text-center py-10 text-muted-foreground">
                     <h2 className="text-xl mb-2">No tasks match your filters!</h2>
                     <p>Try adjusting your search or tag filters.</p>
                 </div>
             )}
             {tasks.length === 0 && (
-                 <div className="md:col-span-3 text-center py-10 text-muted-foreground">
+                 <div className="md:col-span-full text-center py-10 text-muted-foreground">
                     <h2 className="text-xl mb-2">No tasks yet!</h2>
                     <p>Click "Create Task" to get started.</p>
                 </div>
