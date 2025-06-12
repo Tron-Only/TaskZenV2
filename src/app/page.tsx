@@ -16,7 +16,7 @@ import { TaskStatuses } from "@/types"; // For Kanban columns
 import { useToast } from "@/hooks/use-toast";
 
 export type SortConfig = {
-  key: "priority" | "dueDate" | "createdAt";
+  key: "priority" | "createdAt";
   direction: "asc" | "desc";
 };
 
@@ -62,7 +62,7 @@ export default function HomePage() {
     if (existingTaskId) {
       setTasks(
         tasks.map((task) =>
-          task.id === existingTaskId ? { ...task, ...data, dueDate: data.dueDate } : task
+          task.id === existingTaskId ? { ...task, ...data } : task
         )
       );
       toast({ title: "Task Updated", description: `"${data.title}" has been updated.` });
@@ -71,7 +71,6 @@ export default function HomePage() {
         ...data,
         id: crypto.randomUUID(),
         createdAt: new Date(),
-        dueDate: data.dueDate, // data.dueDate is already a Date object or undefined from the form
       };
       setTasks([newTask, ...tasks]);
       toast({ title: "Task Created", description: `"${data.title}" has been added.` });
@@ -107,13 +106,6 @@ export default function HomePage() {
       let comparison = 0;
       if (sortConfig.key === "priority") {
         comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
-      } else if (sortConfig.key === "dueDate") {
-        // a.dueDate and b.dueDate should be Date objects or undefined
-        const dateA = a.dueDate ? a.dueDate.getTime() : Infinity;
-        const dateB = b.dueDate ? b.dueDate.getTime() : Infinity;
-        comparison = dateA - dateB;
-         if (dateA === Infinity && dateB !== Infinity) comparison = sortConfig.direction === 'asc' ? 1 : -1;
-         if (dateB === Infinity && dateA !== Infinity) comparison = sortConfig.direction === 'asc' ? -1 : 1;
       } else { // createdAt
         // a.createdAt and b.createdAt should be Date objects
         comparison = a.createdAt.getTime() - b.createdAt.getTime();

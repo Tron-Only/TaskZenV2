@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, MoreVertical, CalendarDays, CheckCircle, Circle } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { Edit2, Trash2, MoreVertical, CheckCircle, Circle } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 import { PriorityIcon } from "./PriorityIcon";
 import { cn } from "@/lib/utils";
 
@@ -64,12 +64,6 @@ export function TaskItem({ task, onEdit, onDelete, onStatusChange }: TaskItemPro
             {task.status}
           </Badge>
         </div>
-        {task.dueDate && (
-          <div className="flex items-center text-xs text-muted-foreground">
-            <CalendarDays size={14} className="mr-1.5" />
-            <span>Due: {format(new Date(task.dueDate), "MMM d, yyyy")}</span>
-          </div>
-        )}
          <div className="text-xs text-muted-foreground">
             Created: {formatDistanceToNow(new Date(task.createdAt), { addSuffix: true })}
         </div>

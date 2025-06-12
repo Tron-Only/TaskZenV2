@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow } from "lucide-react";
-import type { SortConfig } from "@/app/page"; // Assuming SortConfig type is exported from page.tsx
+import type { SortConfig } from "@/app/page"; 
 
 interface SortControlsProps {
   sortConfig: SortConfig;
@@ -11,7 +11,7 @@ interface SortControlsProps {
 }
 
 export function SortControls({ sortConfig, onSortChange }: SortControlsProps) {
-  const handleSortKeyChange = (key: "priority" | "dueDate" | "createdAt") => {
+  const handleSortKeyChange = (key: "priority" | "createdAt") => {
     onSortChange({ ...sortConfig, key });
   };
 
@@ -31,7 +31,6 @@ export function SortControls({ sortConfig, onSortChange }: SortControlsProps) {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="priority">Priority</SelectItem>
-          <SelectItem value="dueDate">Due Date</SelectItem>
           <SelectItem value="createdAt">Created Date</SelectItem>
         </SelectContent>
       </Select>

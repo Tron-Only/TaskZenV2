@@ -29,11 +29,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
 import type { Task, Priority, TaskStatus } from "@/types";
 import { Priorities, TaskStatuses } from "@/types";
 import { useEffect } from "react";
@@ -42,7 +37,6 @@ const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title must be 100 characters or less"),
   description: z.string().max(500, "Description must be 500 characters or less").optional(),
   priority: z.enum(Priorities),
-  dueDate: z.date().optional(),
   status: z.enum(TaskStatuses),
 });
 
@@ -63,7 +57,6 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
       description: "",
       priority: "Medium",
       status: "To Do",
-      dueDate: undefined,
     },
   });
 
@@ -73,7 +66,6 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
         title: initialTask.title,
         description: initialTask.description || "",
         priority: initialTask.priority,
-        dueDate: initialTask.dueDate ? new Date(initialTask.dueDate) : undefined,
         status: initialTask.status,
       });
     } else {
@@ -82,10 +74,9 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
         description: "",
         priority: "Medium",
         status: "To Do",
-        dueDate: undefined,
       });
     }
-  }, [initialTask, form, isOpen]); // Reset form when dialog opens or initialTask changes
+  }, [initialTask, form, isOpen]);
 
   const handleSubmit = (data: TaskFormValues) => {
     onSubmit(data, initialTask?.id);
@@ -154,46 +145,6 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
               />
               <FormField
                 control={form.control}
-                name="dueDate"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel className="mb-1.5">Due Date (Optional)</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))} // Disable past dates
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-             <FormField
-                control={form.control}
                 name="status"
                 render={({ field }) => (
                   <FormItem>
@@ -214,6 +165,7 @@ export function TaskForm({ isOpen, onOpenChange, onSubmit, initialTask }: TaskFo
                   </FormItem>
                 )}
               />
+            </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
               <Button type="submit" className="bg-primary hover:bg-primary/90">

@@ -12,7 +12,7 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, Dispatch<SetState
       if (!item) return initialValue;
       
       return JSON.parse(item, (k, v) => {
-        if (k === 'dueDate' || k === 'createdAt') {
+        if (k === 'createdAt') { // Removed 'dueDate' from special date parsing
           return v ? new Date(v) : undefined;
         }
         return v;
