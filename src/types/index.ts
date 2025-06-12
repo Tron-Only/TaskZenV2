@@ -1,3 +1,4 @@
+
 export type Priority = "Low" | "Medium" | "High";
 export const Priorities: Priority[] = ["Low", "Medium", "High"];
 
@@ -11,4 +12,5 @@ export interface Task {
   priority: Priority;
   status: TaskStatus;
   createdAt: Date;
+  dueDate?: Date;
 }

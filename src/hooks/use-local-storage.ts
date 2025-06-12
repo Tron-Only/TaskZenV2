@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
@@ -12,7 +13,8 @@ function useLocalStorage<T>(key: string, initialValue: T): [T, Dispatch<SetState
       if (!item) return initialValue;
       
       return JSON.parse(item, (k, v) => {
-        if (k === 'createdAt') { // Removed 'dueDate' from special date parsing
+        // Ensure 'createdAt' and 'dueDate' are parsed as Date objects
+        if (k === 'createdAt' || k === 'dueDate') { 
           return v ? new Date(v) : undefined;
         }
         return v;
